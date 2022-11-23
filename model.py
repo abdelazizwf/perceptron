@@ -18,10 +18,12 @@ class Layer:
         self.inputs = None # Hold the inputs recieved in the first forward pass
         self.nets = None # Hold the net values calculated in the first forward pass
 
-    def first_forward(self, inputs):
+    def get_outputs(self, inputs):
+        # if bias is enabled, add 1 as a bias input
         if self.bias == 1:
             inputs = np.append(inputs, 1)
 
+        # Reshape the inputs from 1D array to a 2D matrix
         self.inputs = np.array([inputs])
 
         # Calculate the net values usin X W^T
@@ -29,28 +31,30 @@ class Layer:
         # instead of M x 1 matrix)
         self.nets = self.inputs @ self.weights.T
 
-        # Return the activations of the net values
+        # Return the activations of the net values as a 1D array
         return self.activation.function(self.nets).flatten()
 
-    def backward(self, back_deltas, back_weights):
+    def calculate_deltas(self, back_deltas, back_weights):
         # Calculate the sums using matrix multiplication
         sums = back_deltas @ back_weights
 
-        # If bias is enabled, add a bias output to match the dimensions of both matrices
+        # If bias is enabled, add a bias output to match the dimensions of the sums matrix
         if self.bias == 1:
             self.nets = np.array([np.append(self.nets, 0)])
 
         # Calculate the delta values
         self.deltas = self.activation.derivative(self.nets) * sums
 
-        # Return both the delta values and weights so they can be used in the previuos layer
+        # Because we calculate a delta for the bias weights in the current layer, that delta
+        # must be removed since the previous layer doesn't provide outputs to the bias unit.
         forward_deltas = self.deltas
         if self.bias == 1:
             forward_deltas = np.array([self.deltas[0][:-1]])
 
+        # Return both the delta values and weights so they can be used in the previuos layer
         return forward_deltas, self.weights
 
-    def second_forward(self):
+    def update_weights(self):
         # Convert the deltas and inputs matrices into an array
         self.deltas = self.deltas.flatten()
         self.inputs = self.inputs.flatten()
@@ -68,18 +72,22 @@ class OutputLayer(Layer):
         return self.deltas, self.weights
 
 
-class Model:
+class MLP:
     
     def __init__(self, x_train, y_train, x_test, y_test, hidden_layers, bias=1, activation=sigmoid, eta=0.4, epochs=1000, mse_threshold=0.05):
+        # Store training and testing data
         self.x_train, self.y_train = x_train, y_train
         self.x_test, self.y_test = x_test, y_test
 
+        # The number of input nodes is the number of features (columns) in the training data
         self.num_inputs = len(x_train.columns)
+        # The number of output nodes is the number of target unique values of the training data 
         self.num_outputs = len(y_train.unique())
         self.epochs = epochs
         self.mse_threshold = mse_threshold
         self.bias = bias
 
+        # Create the hidden layers of the network
         self.layers = []
         prev = self.num_inputs
         for num in hidden_layers:
@@ -88,6 +96,7 @@ class Model:
             )
             prev = num
 
+        # Create the output layer of the network
         self.layers.append(
             OutputLayer(self.num_outputs, prev, bias, activation, eta)
         )
@@ -100,26 +109,34 @@ class Model:
 
             for inputs, target in zip(self.x_train.values, self.y_train.values):
 
+                # First forward pass to calculate the outputs
                 ys = inputs
                 for layer in self.layers:
-                    ys = layer.first_forward(ys)
+                    ys = layer.get_outputs(ys)
 
-                target_vector = np.array(
+                # Calculate the target array based on the value of the target. For example, if the target
+                # is 2 out of a total of 6 classes (0-based), the target vector will be [0, 0, 1, 0, 0, 0]
+                target_array = np.array(
                     [(1 if i == target else 0) for i in range(self.num_outputs)]
                 )
 
-                total_cost = np.sum((ys - target_vector) ** 2)
+                # Calculate the total cost to update the MSE
+                total_cost = np.sum((ys - target_array) ** 2)
                 mse += total_cost ** 2
 
-                costs = target_vector - ys
+                # Calculate the cost array for each output node (i.e: t - y for every node)
+                costs = target_array - ys
 
+                # Backward pass. Starts with the output layer, then goes backwards through the hidden layers
                 deltas, weights = self.layers[-1].backward(costs)
                 for layer in reversed(self.layers[:-1]):
-                    deltas, weights = layer.backward(deltas, weights)
+                    deltas, weights = layer.calculate_deltas(deltas, weights)
 
+                # Second forward pass to update the weights
                 for layer in self.layers:
-                    layer.second_forward()
+                    layer.update_weights()
 
+            # Calculate the MSE for the whole epoch and finish training if it's below the threshold
             mse *= 1 / len(self.y_train)
 
             if mse < self.mse_threshold:
@@ -130,14 +147,18 @@ class Model:
 
         for inputs, target in zip(self.x_test.values, self.y_test.values):
 
+            # Get the output of the network
             ys = inputs
             for layer in self.layers:
-                ys = layer.first_forward(ys)
+                ys = layer.get_outputs(ys)
 
+            # Get the index of the maximum value, the index correspond to which class that output represents
             y = ys.argmax()
 
+            # Determine of the network's choice is correct or not
             correct += 1 if y == target else 0
 
+        # Calculate the accuracy
         self.accuracy = (correct / len(self.y_test)) * 100
 
         return self.accuracy
