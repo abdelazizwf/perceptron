@@ -1,6 +1,7 @@
 from collections import namedtuple
 import numpy as np
 
+# A data class to group activation functions and their derivatives
 ActivationFunction = namedtuple("ActivationFunction", ["name", "function", "derivative"])
 
 sig_func = lambda x: 1 / (1 + np.exp(-x))
@@ -18,7 +19,9 @@ hyper_tan = ActivationFunction(
     derivative=lambda x: (2 * np.exp(x)) / ((np.exp(x) + 1) ** 2)
 )
 
+# Global list to be used in GUI
 ACTIVATION_FUNCTIONS = [
     sigmoid,
     hyper_tan,
 ]
+

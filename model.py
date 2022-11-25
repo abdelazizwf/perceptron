@@ -26,7 +26,7 @@ class Layer:
         # Reshape the inputs from 1D array to a 2D matrix
         self.inputs = np.array([inputs])
 
-        # Calculate the net values usin X W^T
+        # Calculate the net values using X W^T
         # (X W^T is different than W^T X since X is represented as a 1 x M matrix
         # instead of M x 1 matrix)
         self.nets = self.inputs @ self.weights.T
@@ -104,7 +104,7 @@ class MLP:
         self.accuracy = 0
 
     def train(self):
-        for _ in range(self.epochs):
+        for i in range(self.epochs):
             mse = 0
 
             for inputs, target in zip(self.x_train.values, self.y_train.values):
@@ -139,6 +139,8 @@ class MLP:
             # Calculate the MSE for the whole epoch and finish training if it's below the threshold
             mse *= 1 / len(self.y_train)
 
+            print(f"MSE at epoch {i} is {mse}")
+
             if mse < self.mse_threshold:
                 break
 
@@ -162,3 +164,11 @@ class MLP:
         self.accuracy = (correct / len(self.y_test)) * 100
 
         return self.accuracy
+
+    def test_sample(self, sample):
+        # Return the result of the network on a user-provided sample
+        ys = sample
+        for layer in self.layers:
+            ys = layer.get_outputs(ys)
+
+        return ys.argmax()
