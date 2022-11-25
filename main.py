@@ -1,15 +1,16 @@
 from model import MLP
 from data_handlers import MNIST, Penguins, Iris
+from util import get_logger
 
 def penguins_run():
     penguins = Penguins("data/penguins.csv")
     model = MLP(
         *penguins.partition_data(),
-        [8, 12, 5],
+        [8, 18, 12],
         bias=1,
-        eta=0.5,
+        eta=0.4,
         mse_threshold=0.05,
-        epochs=500
+        epochs=750
     )
     model.train()
     acc = model.test()
@@ -44,4 +45,9 @@ def iris_run():
     print("Iris Accuracy: ", acc)
 
 if __name__ == "__main__":
-    iris_run()
+    logger = get_logger(__name__)
+    logger.info("Starting...")
+
+    penguins_run()
+
+    logger.info("Finished.")

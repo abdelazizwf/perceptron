@@ -1,5 +1,5 @@
 import numpy as np
-from util import sigmoid
+from util import sigmoid, get_logger
 
 class Layer:
 
@@ -101,7 +101,12 @@ class MLP:
             OutputLayer(self.num_outputs, prev, bias, activation, eta)
         )
 
-        self.accuracy = 0
+        self.accuracy = -1
+
+        self.logger = get_logger(__name__ + "." + self.__class__.__name__)
+
+        self.logger.info(f"MLP created with {hidden_layers} hidden layers, bias: {bias}, " +
+                         f"activation: {activation.name}, learning rate: {eta}, MSE threshold: {mse_threshold}")
 
     def train(self):
         for i in range(self.epochs):
@@ -139,7 +144,7 @@ class MLP:
             # Calculate the MSE for the whole epoch and finish training if it's below the threshold
             mse *= 1 / len(self.y_train)
 
-            print(f"MSE at epoch {i} is {mse}")
+            self.logger.info(f"MSE at epoch {i + 1} is {mse}")
 
             if mse < self.mse_threshold:
                 break
@@ -162,6 +167,8 @@ class MLP:
 
         # Calculate the accuracy
         self.accuracy = (correct / len(self.y_test)) * 100
+
+        self.logger.info(f"Accuracy: {self.accuracy}")
 
         return self.accuracy
 

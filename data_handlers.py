@@ -1,14 +1,27 @@
 import numpy as np
 import pandas as pd
+from util import get_logger
 
 
-class Penguins:
+class DataHandlerABC:
 
     def __init__(self, path, preprocess=True):
+        self.logger = get_logger(__name__ + "." + self.__class__.__name__)
+
         self.data = pd.read_csv(path)
+        self.logger.info(f"Loaded data from `{path}` successfully.")
 
         if preprocess:
             self.preprocess_data()
+
+    def preprocess_data(self):
+        pass
+
+    def partition_data(self):
+        return None
+
+
+class Penguins(DataHandlerABC):
 
     def preprocess_data(self):
         # Replace Na values with the last valid value of their column
@@ -29,8 +42,12 @@ class Penguins:
         self.data['body_mass_g'] = self.data['body_mass_g'].apply(func)
 
         # Convert species' names to 0-index classes
-        labels = {"Adelie": 0, "Gentoo": 1, "Chinstrap": 2}
-        self.data["species"] = self.data["species"].apply(lambda x: labels[x])
+        y_label = "species"
+        names = self.data[y_label].unique()
+        labels = {names[i]: i for i in range(len(names))}
+        self.data[y_label] = self.data[y_label].apply(lambda x: labels[x])
+
+        self.logger.info("Preprocessed data successfully.")
 
     def partition_data(self):
         # Create empty DataFrames
@@ -60,11 +77,15 @@ class Penguins:
         )
 
 
-class MNIST:
+class MNIST(DataHandlerABC):
 
     def __init__(self, train_path, test_path, preprocess=True):
+        self.logger = get_logger(__name__ + "." + self.__class__.__name__)
+
         self.train_data = pd.read_csv(train_path)
         self.test_data = pd.read_csv(test_path)
+
+        self.logger.info(f"Loaded data from `{train_path}` and `{test_path}` successfully.")
 
         if preprocess:
             self.preprocess_data()
@@ -76,6 +97,8 @@ class MNIST:
 
         self.train_data.loc[:, filt] = self.train_data.loc[:, filt].applymap(func)
         self.test_data.loc[:, filt] = self.test_data.loc[:, filt].applymap(func)
+
+        self.logger.info("Preprocessed data successfully.")
 
     def partition_data(self):
         y_label = "label"
@@ -90,13 +113,7 @@ class MNIST:
         return x_train, y_train, x_test, y_test
 
 
-class Iris:
-
-    def __init__(self, path, preprocess=True):
-        self.data = pd.read_csv(path)
-
-        if preprocess:
-            self.preprocess_data()
+class Iris(DataHandlerABC):
 
     def preprocess_data(self):
         y_label = "class"
@@ -107,6 +124,8 @@ class Iris:
         names = self.data[y_label].unique()
         labels = {names[i]: i for i in range(len(names))}
         self.data[y_label] = self.data[y_label].apply(lambda x: labels[x])
+
+        self.logger.info("Preprocessed data successfully.")
 
     def partition_data(self):
         # Create empty DataFrames

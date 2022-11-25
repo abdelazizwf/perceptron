@@ -1,5 +1,6 @@
 from collections import namedtuple
 import numpy as np
+import logging
 
 # A data class to group activation functions and their derivatives
 ActivationFunction = namedtuple("ActivationFunction", ["name", "function", "derivative"])
@@ -25,3 +26,15 @@ ACTIVATION_FUNCTIONS = [
     hyper_tan,
 ]
 
+
+def get_logger(name):
+    fmt = "%(asctime)s %(name)s %(levelname)s: %(message)s"
+    date_fmt = "%H:%M:%S"
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format=fmt,
+        datefmt=date_fmt,
+        filename='run.log',
+        filemode='w'
+    )
+    return logging.getLogger(name)
