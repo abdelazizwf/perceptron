@@ -1,2 +1,4 @@
 _*
 .ipynb*
+data/mnist*
+*.log
