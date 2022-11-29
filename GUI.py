@@ -44,11 +44,12 @@ def gui(runner):
         h_layers = [int(num) for num in hlayers_text.get(1.0, "end-1c").split()]
         mse = float(mse_text.get(1.0, "end-1c"))
         eta = float(eta_text.get(1.0, "end-1c"))
+        epochs = int(epochs_text.get(1.0, "end-1c"))
         dataset = dataset_v.get()
         af = af_v.get()
         bias = int(bias_var.get())
-        print(h_layers, mse, eta, dataset, af, bias)
-        runner(h_layers, mse, eta, dataset, af, bias)
+        print(h_layers, mse, eta, dataset, af, bias, epochs)
+        runner(h_layers, mse, eta, dataset, af, bias, epochs)
 
 
     tk.Button(root, text="Run", height=2, width=10, command=submit).grid(column=1, row=10)

@@ -5,7 +5,7 @@ from model import MLP
 from util import get_logger, plot_mses, ACTIVATION_FUNCTIONS
 from GUI import gui
 
-def run(h_layers, mse, eta, dataset, af, bias):
+def run(h_layers, mse, eta, dataset, af, bias, epochs):
     handler = None
     if dataset == "Iris":
         handler = Iris("data/iris.csv")
@@ -21,6 +21,7 @@ def run(h_layers, mse, eta, dataset, af, bias):
         mse_threshold=mse,
         eta=eta,
         activation=ACTIVATION_FUNCTIONS[af],
+        epochs=epochs
     )
 
     mses, train_acc = model.train()

@@ -10,6 +10,7 @@ class Layer:
         # and M is the number of nodes in the previous layer. Each row holds all the weights
         # connected to a node, and each column correspond to the weight of a node in the previous
         # layer that is connected to nodes in this layer. The bias is treated as a weight for each node.
+        np.random.seed(0)
         self.weights = np.random.standard_normal((nodes_num, previous_num + bias))
 
         self.activation = activation   
