@@ -1,5 +1,6 @@
 import numpy as np
-from util import sigmoid, get_logger
+
+from util import get_logger, sigmoid
 
 class Layer:
 
@@ -66,7 +67,7 @@ class Layer:
 
 class OutputLayer(Layer):
 
-    def backward(self, costs):
+    def calculate_deltas(self, costs):
         # Output layers calculate the delta values based on the cost of the outputs
         self.deltas = costs * self.activation.derivative(self.nets)
         return self.deltas, self.weights
@@ -101,14 +102,18 @@ class MLP:
             OutputLayer(self.num_outputs, prev, bias, activation, eta)
         )
 
-        self.accuracy = -1
+        self.test_accuracy = -1
+        self.train_accuracy = -1
 
         self.logger = get_logger(__name__ + "." + self.__class__.__name__)
 
-        self.logger.info(f"MLP created with {hidden_layers} hidden layers, bias: {bias}, " +
+        self.logger.info(f"MLP created with {hidden_layers} hidden layers, bias: {bias}, epochs: {epochs}, " +
                          f"activation: {activation.name}, learning rate: {eta}, MSE threshold: {mse_threshold}")
 
     def train(self):
+        mses = []
+        correct = 0
+
         for i in range(self.epochs):
             mse = 0
 
@@ -118,6 +123,9 @@ class MLP:
                 ys = inputs
                 for layer in self.layers:
                     ys = layer.get_outputs(ys)
+
+                y = ys.argmax()
+                correct += 1 if y == target else 0
 
                 # Calculate the target array based on the value of the target. For example, if the target
                 # is 2 out of a total of 6 classes (0-based), the target vector will be [0, 0, 1, 0, 0, 0]
@@ -133,7 +141,7 @@ class MLP:
                 costs = target_array - ys
 
                 # Backward pass. Starts with the output layer, then goes backwards through the hidden layers
-                deltas, weights = self.layers[-1].backward(costs)
+                deltas, weights = self.layers[-1].calculate_deltas(costs)
                 for layer in reversed(self.layers[:-1]):
                     deltas, weights = layer.calculate_deltas(deltas, weights)
 
@@ -144,10 +152,18 @@ class MLP:
             # Calculate the MSE for the whole epoch and finish training if it's below the threshold
             mse *= 1 / len(self.y_train)
 
+            mses.append(mse)
+
             self.logger.info(f"MSE at epoch {i + 1} is {mse}")
 
             if mse < self.mse_threshold:
                 break
+
+        self.train_accuracy = (correct / (len(mses) * len(self.y_train))) * 100
+
+        self.logger.info(f"Finished training with accuracy {self.train_accuracy}")
+
+        return mses, self.train_accuracy
 
     def test(self):
         correct = 0
@@ -166,11 +182,11 @@ class MLP:
             correct += 1 if y == target else 0
 
         # Calculate the accuracy
-        self.accuracy = (correct / len(self.y_test)) * 100
+        self.test_accuracy = (correct / len(self.y_test)) * 100
 
-        self.logger.info(f"Accuracy: {self.accuracy}")
+        self.logger.info(f"Accuracy: {self.test_accuracy}")
 
-        return self.accuracy
+        return self.test_accuracy
 
     def test_sample(self, sample):
         # Return the result of the network on a user-provided sample

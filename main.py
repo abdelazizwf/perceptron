@@ -1,6 +1,8 @@
+import matplotlib.pyplot as plt
+
+from data_handlers import Iris, MNIST, Penguins
 from model import MLP
-from data_handlers import MNIST, Penguins, Iris
-from util import get_logger
+from util import get_logger, plot_mses
 
 def penguins_run():
     penguins = Penguins("data/penguins.csv")
@@ -10,9 +12,10 @@ def penguins_run():
         bias=1,
         eta=0.4,
         mse_threshold=0.05,
-        epochs=750
+        epochs=750,
     )
-    model.train()
+    mses, _ = model.train()
+    plot_mses(mses)
     acc = model.test()
     print("Penguins Accuracy: ", acc)
 
@@ -26,7 +29,8 @@ def mnist_run():
         mse_threshold=0.15,
         epochs=10,
     )
-    model.train()
+    mses, _ = model.train()
+    plot_mses(mses)
     acc = model.test()
     print("MNIST Accuracy: ", acc)
 
@@ -40,7 +44,9 @@ def iris_run():
         mse_threshold=0.05,
         epochs=100
     )
-    model.train()
+    mses, acc = model.train()
+    print("Iris Train Accuracy:", acc)
+    plot_mses(mses)
     acc = model.test()
     print("Iris Accuracy: ", acc)
 
@@ -48,6 +54,8 @@ if __name__ == "__main__":
     logger = get_logger(__name__)
     logger.info("Starting...")
 
-    penguins_run()
+    plt.style.use("ggplot")
+
+    iris_run()
 
     logger.info("Finished.")
