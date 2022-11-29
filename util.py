@@ -30,12 +30,11 @@ relu = ActivationFunction(
 )
 
 # Global list to be used in GUI
-ACTIVATION_FUNCTIONS = [
-    sigmoid,
-    hyper_tan,
-    relu,
-]
-
+ACTIVATION_FUNCTIONS = {
+    "Sigmoid": sigmoid,
+    "Hyperbolic Tangent": hyper_tan,
+    "Rectified Linear Unit": relu
+}
 
 def get_logger(name):
     fmt = "%(asctime)s %(name)s %(levelname)s: %(message)s"

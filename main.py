@@ -1,54 +1,34 @@
 import matplotlib.pyplot as plt
 
-from data_handlers import Iris, MNIST, Penguins
+from data_handlers import MNIST, Iris, Penguins
 from model import MLP
-from util import get_logger, plot_mses
+from util import get_logger, plot_mses, ACTIVATION_FUNCTIONS
+from GUI import gui
 
-def penguins_run():
-    penguins = Penguins("data/penguins.csv")
-    model = MLP(
-        *penguins.partition_data(),
-        [8, 18, 12],
-        bias=1,
-        eta=0.6,
-        mse_threshold=0.05,
-        epochs=500,
-    )
-    mses, _ = model.train()
-    plot_mses(mses)
-    acc = model.test()
-    print("Penguins Accuracy: ", acc)
+def run(h_layers, mse, eta, dataset, af, bias):
+    handler = None
+    if dataset == "Iris":
+        handler = Iris("data/iris.csv")
+    elif dataset == "Penguins":
+        handler = Penguins("data/penguins.csv")
+    elif dataset == "MNIST":
+        handler = MNIST("data/mnist_train.csv", "data/mnist_test.csv")
 
-def mnist_run():
-    mnist = MNIST("data/mnist_train.csv", "data/mnist_test.csv")
     model = MLP(
-        *mnist.partition_data(),
-        [16, 16, 12],
-        bias=1,
-        eta=0.5,
-        mse_threshold=0.15,
-        epochs=10,
+        *handler.partition_data(),
+        h_layers,
+        bias=bias,
+        mse_threshold=mse,
+        eta=eta,
+        activation=ACTIVATION_FUNCTIONS[af],
     )
-    mses, _ = model.train()
-    plot_mses(mses)
-    acc = model.test()
-    print("MNIST Accuracy: ", acc)
 
-def iris_run():
-    iris = Iris("data/iris.csv")
-    model = MLP(
-        *iris.partition_data(),
-        [16, 12, 8],
-        bias=1,
-        eta=0.4,
-        mse_threshold=0.05,
-        epochs=100
-    )
-    mses, acc = model.train()
-    print("Iris Train Accuracy:", acc)
+    mses, train_acc = model.train()
     plot_mses(mses)
-    acc = model.test()
-    print("Iris Accuracy: ", acc)
+    print(f"{dataset} training accuracy: {train_acc}")
+
+    test_acc = model.test()
+    print(f"{dataset} testing accuracy: {test_acc}")
 
 if __name__ == "__main__":
     logger = get_logger(__name__)
@@ -56,6 +36,6 @@ if __name__ == "__main__":
 
     plt.style.use("ggplot")
 
-    penguins_run()
+    gui(run)
 
     logger.info("Finished.")

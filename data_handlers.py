@@ -153,3 +153,10 @@ class Iris(DataHandlerABC):
             testing.loc[:, testing.columns != y_label],
             testing[y_label]
         )
+
+
+DATASETS = {
+    "MNIST": MNIST,
+    "Penguins": Penguins,
+    "Iris": Iris
+}

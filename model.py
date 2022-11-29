@@ -158,9 +158,9 @@ class MLP:
 
             self.logger.info(f"MSE at epoch {i + 1} is {mse}")
 
-            if mse > prev_mse:
-                self.eta /= 10
-                self.logger.info(f"Changed learning rate to {self.eta}")
+            #if mse > prev_mse:
+                #self.eta /= 10
+                #self.logger.info(f"Changed learning rate to {self.eta}")
 
             prev_mse = mse
 
