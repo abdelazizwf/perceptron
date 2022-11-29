@@ -10,9 +10,9 @@ def penguins_run():
         *penguins.partition_data(),
         [8, 18, 12],
         bias=1,
-        eta=0.4,
+        eta=0.6,
         mse_threshold=0.05,
-        epochs=750,
+        epochs=500,
     )
     mses, _ = model.train()
     plot_mses(mses)
@@ -56,6 +56,6 @@ if __name__ == "__main__":
 
     plt.style.use("ggplot")
 
-    iris_run()
+    penguins_run()
 
     logger.info("Finished.")

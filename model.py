@@ -1,10 +1,11 @@
+from math import inf
 import numpy as np
 
 from util import get_logger, sigmoid
 
 class Layer:
 
-    def __init__(self, nodes_num, previous_num, bias=1, activation=sigmoid, eta=0.4):
+    def __init__(self, nodes_num, previous_num, bias=1, activation=sigmoid):
         # Initialize a matrix N x M, where N is the number of nodes in the current layer,
         # and M is the number of nodes in the previous layer. Each row holds all the weights
         # connected to a node, and each column correspond to the weight of a node in the previous
@@ -12,7 +13,6 @@ class Layer:
         self.weights = np.random.standard_normal((nodes_num, previous_num + bias))
 
         self.activation = activation   
-        self.eta = eta
         self.bias = bias
 
         self.deltas = None # Hold the delta values calculated in the backward pass
@@ -55,14 +55,14 @@ class Layer:
         # Return both the delta values and weights so they can be used in the previuos layer
         return forward_deltas, self.weights
 
-    def update_weights(self):
+    def update_weights(self, eta):
         # Convert the deltas and inputs matrices into an array
         self.deltas = self.deltas.flatten()
         self.inputs = self.inputs.flatten()
 
         # Update each row of weights according to the delta rule
         for i, row in enumerate(self.weights):
-            row += self.eta * self.deltas[i] * self.inputs
+            row += eta * self.deltas[i] * self.inputs
 
 
 class OutputLayer(Layer):
@@ -87,19 +87,20 @@ class MLP:
         self.epochs = epochs
         self.mse_threshold = mse_threshold
         self.bias = bias
+        self.eta = eta
 
         # Create the hidden layers of the network
         self.layers = []
         prev = self.num_inputs
         for num in hidden_layers:
             self.layers.append(
-                Layer(num, prev, bias, activation, eta)
+                Layer(num, prev, bias, activation)
             )
             prev = num
 
         # Create the output layer of the network
         self.layers.append(
-            OutputLayer(self.num_outputs, prev, bias, activation, eta)
+            OutputLayer(self.num_outputs, prev, bias, activation)
         )
 
         self.test_accuracy = -1
@@ -113,6 +114,7 @@ class MLP:
     def train(self):
         mses = []
         correct = 0
+        prev_mse = inf
 
         for i in range(self.epochs):
             mse = 0
@@ -147,7 +149,7 @@ class MLP:
 
                 # Second forward pass to update the weights
                 for layer in self.layers:
-                    layer.update_weights()
+                    layer.update_weights(self.eta)
 
             # Calculate the MSE for the whole epoch and finish training if it's below the threshold
             mse *= 1 / len(self.y_train)
@@ -155,6 +157,12 @@ class MLP:
             mses.append(mse)
 
             self.logger.info(f"MSE at epoch {i + 1} is {mse}")
+
+            if mse > prev_mse:
+                self.eta /= 10
+                self.logger.info(f"Changed learning rate to {self.eta}")
+
+            prev_mse = mse
 
             if mse < self.mse_threshold:
                 break
