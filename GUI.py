@@ -1,57 +1,100 @@
 import tkinter as tk
+from tkinter.scrolledtext import ScrolledText
 
-from util import ACTIVATION_FUNCTIONS
 from data_handlers import DATASETS
+from util import ACTIVATION_FUNCTIONS, get_logger
 
+
+class Text:
+
+    def __init__(self, root, text, row):
+        tk.Label(root, text=text).grid(column=0, row=row, padx=10, pady=10, sticky=tk.W)
+
+        self.widget = tk.Text(root, height=1, width=10)
+        self.widget.grid(column=1, row=row)
+
+    def get(self):
+        return self.widget.get(1.0, "end-1c")
+
+
+class OptionMenu:
+
+    def __init__(self, root, text, row, values):
+        tk.Label(root, text=text).grid(column=0, row=row, padx=10, pady=10, sticky=tk.W)
+        
+        self.var = tk.StringVar()
+        self.var.set(values[0])
+        tk.OptionMenu(root, self.var, *values).grid(column=1, row=row)
+
+    def get(self):
+        return self.var.get()
+
+
+class LoggingWidget:
+
+    def __init__(self, root, column, rowspan, path):
+        self.widget = ScrolledText(root, state='disabled', wrap=tk.WORD)
+        self.widget.grid(rowspan=rowspan, column=column, row=0, padx=10, pady=10)
+
+        self.path = path
+
+    def update(self):
+        with open(self.path, 'r') as f:
+            logs = "\n".join(f.readlines())
+
+        self.widget.configure(state='normal')
+        self.widget.delete('1.0', tk.END)
+        self.widget.insert(tk.INSERT, logs)
+        self.widget.configure(state='disabled')
+        self.widget.yview(tk.END)
 
 
 def gui(runner):
     root = tk.Tk()
+    root.resizable(width=False, height=False)
     root.title('Task 3')
-    root.geometry("500x200")
 
-    tk.Label(root, text="Enter hidden layers: ").grid(column=0, row=2, sticky=tk.W)
-    hlayers_text = tk.Text(root, height=1, width=10)
-    hlayers_text.grid(column=1, row=2)
+    hidden_layers_inp = Text(root, "Enter hidden layers: ", 0)
+    mse_inp = Text(root, "Enter MSE threshold: ", 1)
+    eta_inp = Text(root, "Enter learning rate: ", 2)
+    epochs_inp = Text(root, "Enter number of epochs: ", 3)
 
-    tk.Label(root, text="Enter MSE threshold: ").grid(column=0, row=3, sticky=tk.W)
-    mse_text = tk.Text(root, height=1, width=10)
-    mse_text.grid(column=1, row=3)
-
-    tk.Label(root, text="Enter learning rate: ").grid(column=0, row=5, sticky=tk.W)
-    eta_text = tk.Text(root, height=1, width=10)
-    eta_text.grid(column=1, row=5)
-
-    tk.Label(root, text="Enter number of epochs: ").grid(column=0, row=6, sticky=tk.W)
-    epochs_text = tk.Text(root, height=1, width=10)
-    epochs_text.grid(column=1, row=6)
-
-    tk.Label(root, text="Select dataset: ").grid(column=0, row=7, sticky=tk.W)
-    dataset_v = tk.StringVar()  
-    dataset_v.set("Penguins")
-    tk.OptionMenu(root, dataset_v, *DATASETS.keys()).grid(column=1, row=7)
-
-    tk.Label(root, text="Select activation function: ").grid(column=0, row=8, sticky=tk.W)
-    af_v = tk.StringVar()
-    af_v.set("Sigmoid")
-    tk.OptionMenu(root, af_v, *ACTIVATION_FUNCTIONS.keys()).grid(column=1, row=8)
+    dataset_inp = OptionMenu(root, "Select dataset: ", 4, DATASETS)
+    activation_inp = OptionMenu(root, "Select activation function: ", 5, list(ACTIVATION_FUNCTIONS.keys()))
 
     bias_var = tk.IntVar(root)
-    tk.Checkbutton(root, text='Bias', onvalue=1, offvalue=0, variable=bias_var).grid(column=0, row=9)
+    tk.Checkbutton(root, text=" Bias", onvalue=1, offvalue=0, variable=bias_var).grid(column=0, row=6)
+
+    logging_widget = LoggingWidget(root, 2, 7, "run.log")
+
+    working = tk.Label(root, text="Running.....")
 
 
     def submit():
-        h_layers = [int(num) for num in hlayers_text.get(1.0, "end-1c").split()]
-        mse = float(mse_text.get(1.0, "end-1c"))
-        eta = float(eta_text.get(1.0, "end-1c"))
-        epochs = int(epochs_text.get(1.0, "end-1c"))
-        dataset = dataset_v.get()
-        af = af_v.get()
+        h_layers = [int(num) for num in hidden_layers_inp.get().split()]
+        mse = float(mse_inp.get())
+        eta = float(eta_inp.get())
+        epochs = int(epochs_inp.get())
+        dataset = dataset_inp.get()
+        activation = activation_inp.get()
         bias = int(bias_var.get())
-        print(h_layers, mse, eta, dataset, af, bias, epochs)
-        runner(h_layers, mse, eta, dataset, af, bias, epochs)
+
+        logger = get_logger(__name__)
+        logger.info(f"GUI submitted for {dataset} with: {h_layers} hidden layers, bias: {bias}, epochs: {epochs}, " +
+                    f"activation: {activation}, learning rate: {eta}, MSE threshold: {mse}")
+
+        working.grid(column=2, row=7, sticky=tk.W, padx=10, pady=10)
+        root.update()
+
+        runner(h_layers, mse, eta, dataset, activation, bias, epochs)
+
+        working.grid_forget()
+        root.update()
+
+        logging_widget.update()
 
 
-    tk.Button(root, text="Run", height=2, width=10, command=submit).grid(column=1, row=10)
+    tk.Button(root, text="Run", height=2, width=10, command=submit).grid(column=1, row=7, pady=10)
 
+    logging_widget.update()
     root.mainloop()

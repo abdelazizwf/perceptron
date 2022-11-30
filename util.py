@@ -4,6 +4,7 @@ import logging
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 # A data class to group activation functions and their derivatives
 ActivationFunction = namedtuple("ActivationFunction", ["name", "function", "derivative"])
 

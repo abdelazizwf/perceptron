@@ -1,2 +1,0 @@
-- Activation functions not working properly
-- MSE graphs are hideous

@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+
 from util import get_logger
 
 
@@ -47,7 +48,7 @@ class Penguins(DataHandlerABC):
         labels = {names[i]: i for i in range(len(names))}
         self.data[y_label] = self.data[y_label].apply(lambda x: labels[x])
 
-        self.logger.info("Preprocessed data successfully.")
+        self.logger.info("Data preprocessed successfully.")
 
     def partition_data(self):
         # Create empty DataFrames
@@ -98,7 +99,7 @@ class MNIST(DataHandlerABC):
         self.train_data.loc[:, filt] = self.train_data.loc[:, filt].applymap(func)
         self.test_data.loc[:, filt] = self.test_data.loc[:, filt].applymap(func)
 
-        self.logger.info("Preprocessed data successfully.")
+        self.logger.info("Data preprocessed successfully.")
 
     def partition_data(self):
         y_label = "label"
@@ -125,7 +126,7 @@ class Iris(DataHandlerABC):
         labels = {names[i]: i for i in range(len(names))}
         self.data[y_label] = self.data[y_label].apply(lambda x: labels[x])
 
-        self.logger.info("Preprocessed data successfully.")
+        self.logger.info("Data preprocessed successfully.")
 
     def partition_data(self):
         # Create empty DataFrames
@@ -155,8 +156,8 @@ class Iris(DataHandlerABC):
         )
 
 
-DATASETS = {
-    "MNIST": MNIST,
-    "Penguins": Penguins,
-    "Iris": Iris
-}
+DATASETS = [
+    "Penguins",
+    "MNIST",
+    "Iris"
+]

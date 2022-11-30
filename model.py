@@ -1,7 +1,9 @@
 from math import inf
+
 import numpy as np
 
 from util import get_logger, sigmoid
+
 
 class Layer:
 
@@ -76,7 +78,7 @@ class OutputLayer(Layer):
 
 class MLP:
     
-    def __init__(self, x_train, y_train, x_test, y_test, hidden_layers, bias=1, activation=sigmoid, eta=0.4, epochs=1000, mse_threshold=0.05):
+    def __init__(self, x_train, y_train, x_test, y_test, hidden_layers, bias=1, activation=sigmoid, eta=0.4, epochs=400, mse_threshold=0.05):
         # Store training and testing data
         self.x_train, self.y_train = x_train, y_train
         self.x_test, self.y_test = x_test, y_test
@@ -193,7 +195,7 @@ class MLP:
         # Calculate the accuracy
         self.test_accuracy = (correct / len(self.y_test)) * 100
 
-        self.logger.info(f"Accuracy: {self.test_accuracy}")
+        self.logger.info(f"Finished testing with accuracy {self.test_accuracy}")
 
         return self.test_accuracy
 

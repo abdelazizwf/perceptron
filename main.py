@@ -1,11 +1,11 @@
 import matplotlib.pyplot as plt
 
-from data_handlers import MNIST, Iris, Penguins
-from model import MLP
-from util import get_logger, plot_mses, ACTIVATION_FUNCTIONS
 from GUI import gui
+from data_handlers import Iris, MNIST, Penguins
+from model import MLP
+from util import ACTIVATION_FUNCTIONS, get_logger, plot_mses
 
-def run(h_layers, mse, eta, dataset, af, bias, epochs):
+def run(h_layers, mse, eta, dataset, activation, bias, epochs):
     handler = None
     if dataset == "Iris":
         handler = Iris("data/iris.csv")
@@ -20,7 +20,7 @@ def run(h_layers, mse, eta, dataset, af, bias, epochs):
         bias=bias,
         mse_threshold=mse,
         eta=eta,
-        activation=ACTIVATION_FUNCTIONS[af],
+        activation=ACTIVATION_FUNCTIONS[activation],
         epochs=epochs
     )
 
