@@ -9,11 +9,11 @@ from util import ACTIVATION_FUNCTIONS, get_logger, plot_mses
 def run(h_layers, mse, eta, dataset, activation, bias, epochs, dynamic_eta):
     handler = None
     if dataset == "Iris":
-        handler = Iris("data/iris.csv")
+        handler = Iris("iris.csv")
     elif dataset == "Penguins":
-        handler = Penguins("data/penguins.csv")
+        handler = Penguins("penguins.csv")
     elif dataset == "MNIST":
-        handler = MNIST("data/mnist_train.csv", "data/mnist_test.csv")
+        handler = MNIST("mnist_train.csv", "mnist_test.csv")
 
     model = MLP(
         *handler.partition_data(),
@@ -27,7 +27,7 @@ def run(h_layers, mse, eta, dataset, activation, bias, epochs, dynamic_eta):
     )
 
     mses, train_acc = model.train()
-    plot_mses(mses)
+    plot_mses(mses, dataset)
     print(f"{dataset} training accuracy: {train_acc}")
 
     conf_matrix, test_acc = model.test()
