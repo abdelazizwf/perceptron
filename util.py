@@ -15,6 +15,7 @@ sigmoid = ActivationFunction(
     derivative=lambda x: sig_func(x) * (1 - sig_func(x))
 )
 
+# https://www.wolframalpha.com/input?i=derivative+%281-e%5E-x%29+%2F+%281%2Be%5E-x%29
 hyper_tan = ActivationFunction(
     name="Hyperbolic Tangent",
     function=lambda x: (1 - np.exp(-x)) / (1 + np.exp(-x)),

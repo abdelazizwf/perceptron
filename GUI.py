@@ -63,14 +63,6 @@ def h_layers_info():
         "the third has 16."
     )
 
-def dynamic_eta_info():
-    messagebox.showinfo(
-        "Dynamic learning rate",
-        "As a result of the current learning rule, changes in weights can cause the network to overshoot its target " +
-        "causing the error function to increase, MSE in this case. One way to prevent this is to decrease the learning " + 
-        "rate whenever the MSE increases. This checkbox will divide the learning rate by 10 if the MSE increases in training."
-    )
-
 def gui(runner):
     root = tk.Tk()
     root.resizable(width=False, height=False)
@@ -88,13 +80,9 @@ def gui(runner):
     bias_var = tk.IntVar(root)
     tk.Checkbutton(root, text=" Bias", onvalue=1, offvalue=0, variable=bias_var).grid(column=0, row=6)
 
-    dyn_eta_var = tk.BooleanVar(root)
-    tk.Checkbutton(root, text=" Dynamic\n learning rate", onvalue=True, offvalue=False, variable=dyn_eta_var).grid(column=1, row=6, padx=5)
-
     logging_widget = LoggingWidget(root, 3, 7, "run.log")
 
     tk.Button(root, text="?", command=h_layers_info).grid(column=2, row=1)
-    tk.Button(root, text="?", command=dynamic_eta_info).grid(column=2, row=6)
 
     working = tk.Label(root, text="Running.....")
 
@@ -107,16 +95,15 @@ def gui(runner):
         dataset = dataset_inp.get()
         activation = activation_inp.get()
         bias = int(bias_var.get())
-        dyn_eta = bool(dyn_eta_var.get())
 
         logger = get_logger(__name__)
         logger.info(f"GUI submitted for {dataset} with {h_layers} hidden layers, bias: {bias}, epochs: {epochs}, " +
-                    f"activation: {activation}, learning rate: {eta}, MSE threshold: {mse}, dynamic learning rate is {'on' if dyn_eta else 'off'}")
+                    f"activation: {activation}, learning rate: {eta}, MSE threshold: {mse}")
 
         working.grid(column=3, row=7, sticky=tk.W, padx=10, pady=10)
         root.update()
 
-        acc = runner(h_layers, mse, eta, dataset, activation, bias, epochs, dyn_eta)
+        acc = runner(h_layers, mse, eta, dataset, activation, bias, epochs)
 
         working.grid_forget()
         root.update()

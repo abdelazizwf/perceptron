@@ -1,5 +1,3 @@
-from math import inf
-
 import numpy as np
 
 from util import ConfusionMatrix, get_logger, sigmoid
@@ -7,16 +5,16 @@ from util import ConfusionMatrix, get_logger, sigmoid
 
 class Layer:
 
-    def __init__(self, nodes_num, previous_num, bias=1, activation=sigmoid):
+    def __init__(self, nodes_num, previous_num, bias=1, activation=sigmoid, eta=0.4):
         # Initialize a matrix N x M, where N is the number of nodes in the current layer,
         # and M is the number of nodes in the previous layer. Each row holds all the weights
         # connected to a node, and each column correspond to the weight of a node in the previous
         # layer that is connected to nodes in this layer. The bias is treated as a weight for each node.
-        np.random.seed(0)
         self.weights = np.random.standard_normal((nodes_num, previous_num + bias))
 
-        self.activation = activation   
+        self.activation = activation
         self.bias = bias
+        self.eta = eta
 
         self.deltas = None # Hold the delta values calculated in the backward pass
         self.inputs = None # Hold the inputs recieved in the first forward pass
@@ -58,14 +56,14 @@ class Layer:
         # Return both the delta values and weights so they can be used in the previuos layer
         return forward_deltas, self.weights
 
-    def update_weights(self, eta):
+    def update_weights(self):
         # Convert the deltas and inputs matrices into an array
         self.deltas = self.deltas.flatten()
         self.inputs = self.inputs.flatten()
 
         # Update each row of weights according to the delta rule
         for i, row in enumerate(self.weights):
-            row += eta * self.deltas[i] * self.inputs
+            row += self.eta * self.deltas[i] * self.inputs
 
 
 class OutputLayer(Layer):
@@ -78,7 +76,7 @@ class OutputLayer(Layer):
 
 class MLP:
     
-    def __init__(self, x_train, y_train, x_test, y_test, hidden_layers, bias=1, activation=sigmoid, eta=0.4, epochs=400, mse_threshold=0.05, dynamic_eta=False):
+    def __init__(self, x_train, y_train, x_test, y_test, hidden_layers, bias=1, activation=sigmoid, eta=0.4, epochs=400, mse_threshold=0.05):
         # Store training and testing data
         self.x_train, self.y_train = x_train, y_train
         self.x_test, self.y_test = x_test, y_test
@@ -90,21 +88,19 @@ class MLP:
         self.epochs = epochs
         self.mse_threshold = mse_threshold
         self.bias = bias
-        self.eta = eta
-        self.dynamic_eta = dynamic_eta
 
         # Create the hidden layers of the network
         self.layers = []
         prev = self.num_inputs
         for num in hidden_layers:
             self.layers.append(
-                Layer(num, prev, bias, activation)
+                Layer(num, prev, bias, activation, eta)
             )
             prev = num
 
         # Create the output layer of the network
         self.layers.append(
-            OutputLayer(self.num_outputs, prev, bias, activation)
+            OutputLayer(self.num_outputs, prev, bias, activation, eta)
         )
 
         self.test_accuracy = -1
@@ -113,13 +109,12 @@ class MLP:
 
         self.logger = get_logger(__name__ + "." + self.__class__.__name__)
 
-        self.logger.info(f"MLP created with {hidden_layers} hidden layers, bias: {bias}, epochs: {epochs}, activation: {activation.name}, " +
-                         f"learning rate: {eta}, MSE threshold: {mse_threshold}, dynamic learning rate is {'on' if dynamic_eta else 'off'}")
+        self.logger.info(f"MLP created with {hidden_layers} hidden layers, bias: {bias}, epochs: {epochs}, " +
+                         f"activation: {activation.name}, learning rate: {eta}, MSE threshold: {mse_threshold}")
 
     def train(self):
         mses = []
         correct = 0
-        prev_mse = inf
 
         for i in range(self.epochs):
             mse = 0
@@ -154,7 +149,7 @@ class MLP:
 
                 # Second forward pass to update the weights
                 for layer in self.layers:
-                    layer.update_weights(self.eta)
+                    layer.update_weights()
 
             # Calculate the MSE for the whole epoch and finish training if it's below the threshold
             mse *= 1 / len(self.y_train)
@@ -162,12 +157,6 @@ class MLP:
             mses.append(mse)
 
             self.logger.info(f"MSE at epoch {i + 1} is {mse}")
-
-            if mse > prev_mse and self.dynamic_eta is True:
-                self.eta /= 10
-                self.logger.info(f"Changed learning rate to {self.eta}")
-
-            prev_mse = mse
 
             if mse < self.mse_threshold:
                 break
