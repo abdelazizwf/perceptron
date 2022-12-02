@@ -1,4 +1,0 @@
-Activation functions
-Changing the learning rate
-Single sample to be classified (Lab 5 - 20)
-Screenshots in report

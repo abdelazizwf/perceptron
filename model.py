@@ -2,7 +2,7 @@ from math import inf
 
 import numpy as np
 
-from util import get_logger, sigmoid
+from util import ConfusionMatrix, get_logger, sigmoid
 
 
 class Layer:
@@ -78,7 +78,7 @@ class OutputLayer(Layer):
 
 class MLP:
     
-    def __init__(self, x_train, y_train, x_test, y_test, hidden_layers, bias=1, activation=sigmoid, eta=0.4, epochs=400, mse_threshold=0.05):
+    def __init__(self, x_train, y_train, x_test, y_test, hidden_layers, bias=1, activation=sigmoid, eta=0.4, epochs=400, mse_threshold=0.05, dynamic_eta=False):
         # Store training and testing data
         self.x_train, self.y_train = x_train, y_train
         self.x_test, self.y_test = x_test, y_test
@@ -91,6 +91,7 @@ class MLP:
         self.mse_threshold = mse_threshold
         self.bias = bias
         self.eta = eta
+        self.dynamic_eta = dynamic_eta
 
         # Create the hidden layers of the network
         self.layers = []
@@ -108,6 +109,7 @@ class MLP:
 
         self.test_accuracy = -1
         self.train_accuracy = -1
+        self.confusion_matrix = ConfusionMatrix(self.num_outputs)
 
         self.logger = get_logger(__name__ + "." + self.__class__.__name__)
 
@@ -161,9 +163,9 @@ class MLP:
 
             self.logger.info(f"MSE at epoch {i + 1} is {mse}")
 
-            #if mse > prev_mse:
-                #self.eta /= 10
-                #self.logger.info(f"Changed learning rate to {self.eta}")
+            if mse > prev_mse and self.dynamic_eta is True:
+                self.eta /= 10
+                self.logger.info(f"Changed learning rate to {self.eta}")
 
             prev_mse = mse
 
@@ -189,6 +191,8 @@ class MLP:
             # Get the index of the maximum value, the index correspond to which class that output represents
             y = ys.argmax()
 
+            self.confusion_matrix.add(target, y)
+
             # Determine of the network's choice is correct or not
             correct += 1 if y == target else 0
 
@@ -196,8 +200,9 @@ class MLP:
         self.test_accuracy = (correct / len(self.y_test)) * 100
 
         self.logger.info(f"Finished testing with accuracy {self.test_accuracy}")
+        self.logger.info(f"The confusion matrix is:\n{self.confusion_matrix}")
 
-        return self.test_accuracy
+        return self.confusion_matrix, self.test_accuracy
 
     def test_sample(self, sample):
         # Return the result of the network on a user-provided sample

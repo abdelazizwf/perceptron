@@ -56,3 +56,23 @@ def plot_mses(mses):
     plt.plot(range(len(mses)), mses)
 
     plt.show()
+
+class ConfusionMatrix:
+
+    def __init__(self, dimension):
+        self.dimension = dimension
+        self.matrix = [[0 for _ in range(dimension)] for _ in range(dimension)]
+
+    def add(self, actual, predicted):
+        self.matrix[actual][predicted] += 1
+
+    def __repr__(self):
+        slots = len(str(max(map(max, self.matrix))))
+        aloc = lambda x: str(x) + (" " * (slots - len(str(x))))
+        result = ""
+        result += "  " + " ".join(map(aloc, range(self.dimension)))
+
+        for i, vals in enumerate(self.matrix):
+            result += "\n" + str(i) + " " + " ".join(map(aloc, vals))
+
+        return result

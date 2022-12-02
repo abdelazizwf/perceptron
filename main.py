@@ -5,7 +5,8 @@ from data_handlers import Iris, MNIST, Penguins
 from model import MLP
 from util import ACTIVATION_FUNCTIONS, get_logger, plot_mses
 
-def run(h_layers, mse, eta, dataset, activation, bias, epochs):
+
+def run(h_layers, mse, eta, dataset, activation, bias, epochs, dynamic_eta):
     handler = None
     if dataset == "Iris":
         handler = Iris("data/iris.csv")
@@ -21,15 +22,16 @@ def run(h_layers, mse, eta, dataset, activation, bias, epochs):
         mse_threshold=mse,
         eta=eta,
         activation=ACTIVATION_FUNCTIONS[activation],
-        epochs=epochs
+        epochs=epochs,
+        dynamic_eta=dynamic_eta
     )
 
     mses, train_acc = model.train()
     plot_mses(mses)
     print(f"{dataset} training accuracy: {train_acc}")
 
-    test_acc = model.test()
-    print(f"{dataset} testing accuracy: {test_acc}")
+    conf_matrix, test_acc = model.test()
+    print(f"{dataset} testing accuracy: {test_acc}\nConfusion matrix:\n{conf_matrix}")
 
 if __name__ == "__main__":
     logger = get_logger(__name__)

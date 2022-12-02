@@ -63,7 +63,10 @@ def gui(runner):
     activation_inp = OptionMenu(root, "Select activation function: ", 5, list(ACTIVATION_FUNCTIONS.keys()))
 
     bias_var = tk.IntVar(root)
-    tk.Checkbutton(root, text=" Bias", onvalue=1, offvalue=0, variable=bias_var).grid(column=0, row=6)
+    tk.Checkbutton(root, text=" Bias", onvalue=1, offvalue=0, variable=bias_var).grid(column=1, row=6)
+
+    dyn_eta_var = tk.BooleanVar(root)
+    tk.Checkbutton(root, text=" Dynamic Learning Rate", onvalue=True, offvalue=False, variable=dyn_eta_var).grid(column=0, row=6)
 
     logging_widget = LoggingWidget(root, 2, 7, "run.log")
 
@@ -78,15 +81,16 @@ def gui(runner):
         dataset = dataset_inp.get()
         activation = activation_inp.get()
         bias = int(bias_var.get())
+        dyn_eta = bool(dyn_eta_var.get())
 
         logger = get_logger(__name__)
-        logger.info(f"GUI submitted for {dataset} with: {h_layers} hidden layers, bias: {bias}, epochs: {epochs}, " +
+        logger.info(f"GUI submitted for {dataset} with {h_layers} hidden layers, bias: {bias}, epochs: {epochs}, " +
                     f"activation: {activation}, learning rate: {eta}, MSE threshold: {mse}")
 
         working.grid(column=2, row=7, sticky=tk.W, padx=10, pady=10)
         root.update()
 
-        runner(h_layers, mse, eta, dataset, activation, bias, epochs)
+        runner(h_layers, mse, eta, dataset, activation, bias, epochs, dyn_eta)
 
         working.grid_forget()
         root.update()
