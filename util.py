@@ -8,8 +8,6 @@ import numpy as np
 # A data class to group activation functions and their derivatives
 ActivationFunction = namedtuple("ActivationFunction", ["name", "function", "derivative"])
 
-# All activation functions are from lecture 5, page 61.
-
 sig_func = lambda x: 1 / (1 + np.exp(-x))
 sigmoid = ActivationFunction(
     name="Sigmoid",
@@ -17,24 +15,16 @@ sigmoid = ActivationFunction(
     derivative=lambda x: sig_func(x) * (1 - sig_func(x))
 )
 
-htan_func = lambda x: (np.exp(x) - np.exp(-x)) / (np.exp(x) + np.exp(-x))
 hyper_tan = ActivationFunction(
     name="Hyperbolic Tangent",
-    function=htan_func,
-    derivative=lambda x: 1 - (htan_func(x) ** 2)
-)
-
-relu = ActivationFunction(
-    name="Rectified Linear Unit",
-    function=lambda x: np.maximum(x, 0),
-    derivative=lambda x: np.where(x > 0, 1, 0)
+    function=lambda x: (1 - np.exp(-x)) / (1 + np.exp(-x)),
+    derivative=lambda x: (2 * np.exp(x)) / ((np.exp(x) + 1) ** 2)
 )
 
 # Global list to be used in GUI
 ACTIVATION_FUNCTIONS = {
     "Sigmoid": sigmoid,
     "Hyperbolic Tangent": hyper_tan,
-    "Rectified Linear Unit": relu
 }
 
 def get_logger(name):
