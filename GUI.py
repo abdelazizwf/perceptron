@@ -1,5 +1,7 @@
+import os
 import tkinter as tk
 from tkinter.scrolledtext import ScrolledText
+from tkinter import messagebox
 
 from data_handlers import DATASETS
 from util import ACTIVATION_FUNCTIONS, get_logger
@@ -10,7 +12,7 @@ class Text:
     def __init__(self, root, text, row):
         tk.Label(root, text=text).grid(column=0, row=row, padx=10, pady=10, sticky=tk.W)
 
-        self.widget = tk.Text(root, height=1, width=10)
+        self.widget = tk.Text(root, height=1, width=15)
         self.widget.grid(column=1, row=row)
 
     def get(self):
@@ -38,37 +40,61 @@ class LoggingWidget:
 
         self.path = path
 
-    def update(self):
-        with open(self.path, 'r') as f:
-            logs = "\n".join(f.readlines())
+    def update(self, acc=-1):
+        logs = []
+
+        if os.path.exists(self.path):
+            with open(self.path, 'r') as f:
+                logs = "\n".join(f.readlines())
 
         self.widget.configure(state='normal')
         self.widget.delete('1.0', tk.END)
         self.widget.insert(tk.INSERT, logs)
+        if acc > -1:
+            self.widget.insert(tk.INSERT, f"\n\nAccuracy: {acc}\n\n")
         self.widget.configure(state='disabled')
         self.widget.yview(tk.END)
 
+def h_layers_info():
+    messagebox.showinfo(
+        "Hidden layers",
+        "Hidden layers are written as integers seperated by spaces. For example, the input '2 8 16' " +
+        "will create a network with 3 hidden layers, the first has 2 nodes, the second has 8, and the " +
+        "the third has 16."
+    )
+
+def dynamic_eta_info():
+    messagebox.showinfo(
+        "Dynamic learning rate",
+        "As a result of the current learning rule, changes in weights can cause the network to overshoot its target " +
+        "causing the error function to increase, MSE in this case. One way to prevent this is to decrease the learning " + 
+        "rate whenever the MSE increases. This checkbox will divide the learning rate by 10 if the MSE increases in training."
+    )
 
 def gui(runner):
     root = tk.Tk()
     root.resizable(width=False, height=False)
     root.title('Task 3')
 
-    hidden_layers_inp = Text(root, "Enter hidden layers: ", 0)
-    mse_inp = Text(root, "Enter MSE threshold: ", 1)
-    eta_inp = Text(root, "Enter learning rate: ", 2)
-    epochs_inp = Text(root, "Enter number of epochs: ", 3)
+    dataset_inp = OptionMenu(root, "Select dataset: ", 0, DATASETS)
 
-    dataset_inp = OptionMenu(root, "Select dataset: ", 4, DATASETS)
+    hidden_layers_inp = Text(root, "Enter hidden layers: ", 1)
+    mse_inp = Text(root, "Enter MSE threshold: ", 2)
+    eta_inp = Text(root, "Enter learning rate: ", 3)
+    epochs_inp = Text(root, "Enter number of epochs: ", 4)
+
     activation_inp = OptionMenu(root, "Select activation function: ", 5, list(ACTIVATION_FUNCTIONS.keys()))
 
     bias_var = tk.IntVar(root)
-    tk.Checkbutton(root, text=" Bias", onvalue=1, offvalue=0, variable=bias_var).grid(column=1, row=6)
+    tk.Checkbutton(root, text=" Bias", onvalue=1, offvalue=0, variable=bias_var).grid(column=0, row=6)
 
     dyn_eta_var = tk.BooleanVar(root)
-    tk.Checkbutton(root, text=" Dynamic Learning Rate", onvalue=True, offvalue=False, variable=dyn_eta_var).grid(column=0, row=6)
+    tk.Checkbutton(root, text=" Dynamic\n learning rate", onvalue=True, offvalue=False, variable=dyn_eta_var).grid(column=1, row=6, padx=5)
 
-    logging_widget = LoggingWidget(root, 2, 7, "run.log")
+    logging_widget = LoggingWidget(root, 3, 7, "run.log")
+
+    tk.Button(root, text="?", command=h_layers_info).grid(column=2, row=1)
+    tk.Button(root, text="?", command=dynamic_eta_info).grid(column=2, row=6)
 
     working = tk.Label(root, text="Running.....")
 
@@ -85,17 +111,17 @@ def gui(runner):
 
         logger = get_logger(__name__)
         logger.info(f"GUI submitted for {dataset} with {h_layers} hidden layers, bias: {bias}, epochs: {epochs}, " +
-                    f"activation: {activation}, learning rate: {eta}, MSE threshold: {mse}")
+                    f"activation: {activation}, learning rate: {eta}, MSE threshold: {mse}, dynamic learning rate is {'on' if dyn_eta else 'off'}")
 
-        working.grid(column=2, row=7, sticky=tk.W, padx=10, pady=10)
+        working.grid(column=3, row=7, sticky=tk.W, padx=10, pady=10)
         root.update()
 
-        runner(h_layers, mse, eta, dataset, activation, bias, epochs, dyn_eta)
+        acc = runner(h_layers, mse, eta, dataset, activation, bias, epochs, dyn_eta)
 
         working.grid_forget()
         root.update()
 
-        logging_widget.update()
+        logging_widget.update(acc)
 
 
     tk.Button(root, text="Run", height=2, width=10, command=submit).grid(column=1, row=7, pady=10)

@@ -113,8 +113,8 @@ class MLP:
 
         self.logger = get_logger(__name__ + "." + self.__class__.__name__)
 
-        self.logger.info(f"MLP created with {hidden_layers} hidden layers, bias: {bias}, epochs: {epochs}, " +
-                         f"activation: {activation.name}, learning rate: {eta}, MSE threshold: {mse_threshold}")
+        self.logger.info(f"MLP created with {hidden_layers} hidden layers, bias: {bias}, epochs: {epochs}, activation: {activation.name}, " +
+                         f"learning rate: {eta}, MSE threshold: {mse_threshold}, dynamic learning rate is {'on' if dynamic_eta else 'off'}")
 
     def train(self):
         mses = []
@@ -176,7 +176,7 @@ class MLP:
 
         self.logger.info(f"Finished training with accuracy {self.train_accuracy}")
 
-        return mses, self.train_accuracy
+        return mses, round(self.train_accuracy, 3)
 
     def test(self):
         correct = 0
@@ -202,7 +202,7 @@ class MLP:
         self.logger.info(f"Finished testing with accuracy {self.test_accuracy}")
         self.logger.info(f"The confusion matrix is:\n{self.confusion_matrix}")
 
-        return self.confusion_matrix, self.test_accuracy
+        return self.confusion_matrix, round(self.test_accuracy, 3)
 
     def test_sample(self, sample):
         # Return the result of the network on a user-provided sample

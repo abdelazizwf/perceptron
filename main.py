@@ -33,6 +33,8 @@ def run(h_layers, mse, eta, dataset, activation, bias, epochs, dynamic_eta):
     conf_matrix, test_acc = model.test()
     print(f"{dataset} testing accuracy: {test_acc}\nConfusion matrix:\n{conf_matrix}")
 
+    return test_acc
+
 if __name__ == "__main__":
     logger = get_logger(__name__)
     logger.info("Starting...")
