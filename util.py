@@ -41,7 +41,7 @@ def get_logger(name):
     return logging.getLogger(name)
 
 def plot_mses(mses, name):
-    plt.title(name + " trainig")
+    plt.title(name + " training")
     plt.xlabel("Epochs")
     plt.ylabel("MSE")
 
