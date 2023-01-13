@@ -39,7 +39,19 @@ def run_gui(runner):
 
 
     def submit():
-        h_layers = [int(num) for num in hidden_layers_inp.get().split()]
+        try:
+            h_layers_val = hidden_layers_inp.get()
+            assert h_layers_val != ''
+            assert all(num.isdigit() for num in h_layers_val.split())
+            h_layers = [int(num) for num in h_layers_val.split()]
+        except:
+            messagebox.showerror(
+                "Error",
+                "Please enter a correct value for the hidden layers. " +
+                "Consult the info button (?) for more information."
+            )
+            return
+
         mse = float(mse_inp.get())
         eta = float(eta_inp.get())
         epochs = int(epochs_inp.get())
