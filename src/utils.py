@@ -35,7 +35,7 @@ def get_logger(name):
         level=logging.INFO,
         format=fmt,
         datefmt=date_fmt,
-        filename='run.log',
+        filename='tmp/run.log',
         filemode='w'
     )
     return logging.getLogger(name)

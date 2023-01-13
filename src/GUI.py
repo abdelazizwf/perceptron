@@ -3,8 +3,8 @@ import tkinter as tk
 from tkinter.scrolledtext import ScrolledText
 from tkinter import messagebox
 
-from data_handlers import DATASETS
-from util import ACTIVATION_FUNCTIONS, get_logger
+from src.data_handlers import DATASETS
+from src.utils import ACTIVATION_FUNCTIONS, get_logger
 
 
 class Text:
@@ -80,7 +80,7 @@ def gui(runner):
     bias_var = tk.IntVar(root)
     tk.Checkbutton(root, text=" Bias", onvalue=1, offvalue=0, variable=bias_var).grid(column=0, row=6)
 
-    logging_widget = LoggingWidget(root, 3, 7, "run.log")
+    logging_widget = LoggingWidget(root, 3, 7, "tmp/run.log")
 
     tk.Button(root, text="?", command=h_layers_info).grid(column=2, row=1)
 

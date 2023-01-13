@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from util import get_logger
+from src.utils import get_logger
 
 
 class DataHandlerABC:

@@ -1,4 +1,5 @@
 _*
 .ipynb*
-*.log
+tmp/
 mnist*
+.venv

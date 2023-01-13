@@ -1,19 +1,19 @@
 import matplotlib.pyplot as plt
 
-from GUI import gui
-from data_handlers import Iris, MNIST, Penguins
-from model import MLP
-from util import ACTIVATION_FUNCTIONS, get_logger, plot_mses
+from src.GUI import gui
+from src.data_handlers import Iris, MNIST, Penguins
+from src.model import MLP
+from src.utils import ACTIVATION_FUNCTIONS, get_logger, plot_mses
 
 
 def run(h_layers, mse, eta, dataset, activation, bias, epochs):
     handler = None
     if dataset == "Iris":
-        handler = Iris("iris.csv")
+        handler = Iris("data/iris.csv")
     elif dataset == "Penguins":
-        handler = Penguins("penguins.csv")
+        handler = Penguins("data/penguins.csv")
     elif dataset == "MNIST":
-        handler = MNIST("mnist_train.csv", "mnist_test.csv")
+        handler = MNIST("data/mnist_train.csv", "data/mnist_test.csv")
 
     model = MLP(
         *handler.partition_data(),
