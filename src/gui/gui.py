@@ -52,9 +52,36 @@ def run_gui(runner):
             )
             return
 
-        mse = float(mse_inp.get())
-        eta = float(eta_inp.get())
-        epochs = int(epochs_inp.get())
+        try:
+            mse = float(mse_inp.get())
+            assert mse >= 0
+        except:
+            messagebox.showerror(
+                "Error",
+                "Please enter a non-negative number (e.g. 0.1) for the MSE threshold."
+            )
+            return
+
+        try:
+            eta = float(eta_inp.get())
+            assert eta > 0
+        except:
+            messagebox.showerror(
+                "Error",
+                "Please enter a positive number (e.g. 0.4) for the learning rate."
+            )
+            return
+
+        try:
+            epochs = int(epochs_inp.get())
+            assert epochs > 0
+        except:
+            messagebox.showerror(
+                "Error",
+                "Please enter a positive integer (e.g. 100) for the epochs."
+            )
+            return
+
         dataset = dataset_inp.get()
         activation = activation_inp.get()
         bias = int(bias_var.get())
