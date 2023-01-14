@@ -102,14 +102,12 @@ def run_gui(runner):
                 "Error",
                 "The data you're using doesn't exist in the data folder. Please fix this issue before running."
             )
+            acc = -1
 
         working.grid_forget()
         root.update()
 
-        if 'acc' in locals():
-            logging_widget.update(acc)
-        else:
-            logging_widget.update()
+        logging_widget.update(acc)
 
 
     tk.Button(root, text="Run", height=2, width=10, command=submit).grid(column=1, row=7, pady=10)
