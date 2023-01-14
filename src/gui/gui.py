@@ -3,7 +3,8 @@ import tkinter as tk
 from tkinter import messagebox
 
 from src.data_handlers import DATASETS
-from src.utils import ACTIVATION_FUNCTIONS, get_logger
+from src.utils import get_logger
+from src.model import ACTIVATION_FUNCTIONS
 from src.gui.widgets import *
 
 

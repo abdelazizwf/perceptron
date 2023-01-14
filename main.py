@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 
 from src.gui import run_gui
 from src.data_handlers import Iris, MNIST, Penguins
-from src.model import MLP
-from src.utils import ACTIVATION_FUNCTIONS, get_logger, plot_mses
+from src.model import MLP, ACTIVATION_FUNCTIONS
+from src.utils import get_logger, plot_mses
 
 
 def run_model(h_layers, mse, eta, dataset, activation, bias, epochs):

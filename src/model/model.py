@@ -1,6 +1,7 @@
 import numpy as np
 
-from src.utils import ConfusionMatrix, get_logger, sigmoid
+from src.utils import ConfusionMatrix, get_logger
+from src.model.activation import sigmoid
 
 
 class Layer:
