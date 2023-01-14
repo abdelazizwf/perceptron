@@ -1,5 +1,6 @@
 from collections import namedtuple
 import logging
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -35,7 +36,7 @@ def get_logger(name):
         level=logging.INFO,
         format=fmt,
         datefmt=date_fmt,
-        filename='tmp/run.log',
+        filename=Path('tmp/run.log'),
         filemode='w'
     )
     return logging.getLogger(name)

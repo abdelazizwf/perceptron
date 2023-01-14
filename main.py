@@ -1,3 +1,4 @@
+from pathlib import Path
 import matplotlib.pyplot as plt
 
 from src.gui import run_gui
@@ -9,11 +10,11 @@ from src.utils import ACTIVATION_FUNCTIONS, get_logger, plot_mses
 def run_model(h_layers, mse, eta, dataset, activation, bias, epochs):
     handler = None
     if dataset == "Iris":
-        handler = Iris("data/iris.csv")
+        handler = Iris(Path("data/iris.csv"))
     elif dataset == "Penguins":
-        handler = Penguins("data/penguins.csv")
+        handler = Penguins(Path("data/penguins.csv"))
     elif dataset == "MNIST":
-        handler = MNIST("data/mnist_train.csv", "data/mnist_test.csv")
+        handler = MNIST(Path("data/mnist_train.csv"), Path("data/mnist_test.csv"))
 
     model = MLP(
         *handler.partition_data(),

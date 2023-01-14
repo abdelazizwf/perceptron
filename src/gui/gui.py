@@ -1,9 +1,13 @@
+from pathlib import Path
 import tkinter as tk
 from tkinter import messagebox
 
 from src.data_handlers import DATASETS
 from src.utils import ACTIVATION_FUNCTIONS, get_logger
 from src.gui.widgets import *
+
+
+LOG_PATH = Path("tmp/run.log")
 
 
 def h_layers_info():
@@ -31,7 +35,7 @@ def run_gui(runner):
     bias_var = tk.IntVar(root)
     tk.Checkbutton(root, text=" Bias", onvalue=1, offvalue=0, variable=bias_var).grid(column=0, row=6)
 
-    logging_widget = LoggingWidget(root, 3, 7, "tmp/run.log")
+    logging_widget = LoggingWidget(root, 3, 7, LOG_PATH)
 
     tk.Button(root, text="?", command=h_layers_info).grid(column=2, row=1)
 
@@ -93,12 +97,21 @@ def run_gui(runner):
         working.grid(column=3, row=7, sticky=tk.W, padx=10, pady=10)
         root.update()
 
-        acc = runner(h_layers, mse, eta, dataset, activation, bias, epochs)
+        try:
+            acc = runner(h_layers, mse, eta, dataset, activation, bias, epochs)
+        except FileNotFoundError:
+            messagebox.showerror(
+                "Error",
+                "The data you're using doesn't exist in the data folder. Please fix this issue before running."
+            )
 
         working.grid_forget()
         root.update()
 
-        logging_widget.update(acc)
+        if 'acc' in locals():
+            logging_widget.update(acc)
+        else:
+            logging_widget.update()
 
 
     tk.Button(root, text="Run", height=2, width=10, command=submit).grid(column=1, row=7, pady=10)

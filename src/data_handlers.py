@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import pandas as pd
 
@@ -9,8 +10,12 @@ class DataHandlerABC:
     def __init__(self, path, preprocess=True):
         self.logger = get_logger(__name__ + "." + self.__class__.__name__)
 
-        self.data = pd.read_csv(path)
-        self.logger.info(f"Loaded data from `{path}` successfully.")
+        if os.path.exists(path):
+            self.data = pd.read_csv(path)
+            self.logger.info(f"Loaded data from `{path}` successfully.")
+        else:
+            self.logger.error(f"{path} does not exist.")
+            raise FileNotFoundError()
 
         if preprocess:
             self.preprocess_data()
@@ -83,10 +88,13 @@ class MNIST(DataHandlerABC):
     def __init__(self, train_path, test_path, preprocess=True):
         self.logger = get_logger(__name__ + "." + self.__class__.__name__)
 
-        self.train_data = pd.read_csv(train_path)
-        self.test_data = pd.read_csv(test_path)
-
-        self.logger.info(f"Loaded data from `{train_path}` and `{test_path}` successfully.")
+        if os.path.exists(train_path) and os.path.exists(test_path):
+            self.train_data = pd.read_csv(train_path)
+            self.test_data = pd.read_csv(test_path)
+            self.logger.info(f"Loaded data from `{train_path}` and `{test_path}` successfully.")
+        else:
+            self.logger.error(f"Either or both of {train_path} and {test_path} do not exist")
+            raise FileNotFoundError()
 
         if preprocess:
             self.preprocess_data()
