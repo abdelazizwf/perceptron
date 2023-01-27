@@ -1,8 +1,16 @@
 import logging
+import os
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 
+
+LOG_PATH = Path('tmp/run.log')
+
+def make_log_file():
+    if not os.path.exists('tmp/'):
+        os.mkdir('tmp')
+    LOG_PATH.touch(exist_ok=True)
 
 def get_logger(name):
     fmt = "%(asctime)s %(name)s %(levelname)s: %(message)s"

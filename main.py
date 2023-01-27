@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from src.gui import run_gui
 from src.data_handlers import Iris, MNIST, Penguins
 from src.model import MLP, ACTIVATION_FUNCTIONS
-from src.utils import get_logger, plot_mses
+from src.utils import get_logger, make_log_file, plot_mses, LOG_PATH
 
 
 def run_model(h_layers, mse, eta, dataset, activation, bias, epochs):
@@ -36,6 +36,8 @@ def run_model(h_layers, mse, eta, dataset, activation, bias, epochs):
     return test_acc
 
 if __name__ == "__main__":
+    make_log_file()
+    
     logger = get_logger(__name__)
     logger.info("Starting...")
 
