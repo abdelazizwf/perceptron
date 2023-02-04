@@ -1,8 +1,8 @@
 import numpy as np
 
-from src.utils import ConfusionMatrix, get_logger
-from src.model.activation import sigmoid
-from src.model.layer import *
+from perceptron.utils import ConfusionMatrix, get_logger
+from perceptron.model.activations import sigmoid
+from perceptron.model.layers import Layer, OutputLayer
 
 
 class MLP:

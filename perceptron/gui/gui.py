@@ -1,11 +1,10 @@
-from pathlib import Path
 import tkinter as tk
 from tkinter import messagebox
 
-from src.data_handlers import DATASETS
-from src.utils import get_logger, LOG_PATH
-from src.model import ACTIVATION_FUNCTIONS
-from src.gui.widgets import *
+from perceptron.data_handlers import DATASETS
+from perceptron.gui.widgets import *
+from perceptron.model.activations import ACTIVATION_FUNCTIONS
+from perceptron.utils import LOG_PATH, get_logger
 
 
 def h_layers_info():
@@ -15,6 +14,7 @@ def h_layers_info():
         "will create a network with 3 hidden layers, the first has 2 nodes, the second has 8, and the " +
         "the third has 16."
     )
+
 
 def run_gui(runner):
     root = tk.Tk()
@@ -114,3 +114,4 @@ def run_gui(runner):
 
     logging_widget.update()
     root.mainloop()
+

@@ -12,6 +12,7 @@ def make_log_file():
         os.mkdir('tmp')
     LOG_PATH.touch(exist_ok=True)
 
+
 def get_logger(name):
     fmt = "%(asctime)s %(name)s %(levelname)s: %(message)s"
     date_fmt = "%H:%M:%S"
@@ -24,6 +25,7 @@ def get_logger(name):
     )
     return logging.getLogger(name)
 
+
 def plot_mses(mses, name):
     plt.title(name + " training")
     plt.xlabel("Epochs")
@@ -32,6 +34,7 @@ def plot_mses(mses, name):
     plt.plot(range(len(mses)), mses)
 
     plt.show()
+
 
 class ConfusionMatrix:
 
@@ -52,3 +55,4 @@ class ConfusionMatrix:
             result += "\n" + str(i) + " " + " ".join(map(aloc, vals))
 
         return result
+

@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.model.activation import sigmoid
+from perceptron.model.activations import sigmoid
 
 
 class Layer:
